@@ -1,0 +1,672 @@
+{
+  "timestamp": "20260410_174630",
+  "scale_label": "Backend Replicas",
+  "results": {
+    "rest_unnumbered": [
+      {
+        "timestamp": "2026-04-10T17:12:26.608057",
+        "architecture": "rest",
+        "ticket_type": "unnumbered",
+        "num_workers": 1,
+        "total_time": 51.44376540184021,
+        "total_operations": 20000,
+        "throughput": 388.77403012347486,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.01023894271850586,
+            "min_latency": 0.0043680667877197266,
+            "max_latency": 0.2327280044555664,
+            "p50_latency": 0.008898735046386719,
+            "p95_latency": 0.017936229705810547,
+            "p99_latency": 0.03204751014709473
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:16:47.707333",
+        "architecture": "rest",
+        "ticket_type": "unnumbered",
+        "num_workers": 2,
+        "total_time": 53.0728280544281,
+        "total_operations": 20000,
+        "throughput": 376.8406684393995,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.010565426158905029,
+            "min_latency": 0.004494428634643555,
+            "max_latency": 0.22683048248291016,
+            "p50_latency": 0.009516000747680664,
+            "p95_latency": 0.017719268798828125,
+            "p99_latency": 0.027732372283935547
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:20:54.200338",
+        "architecture": "rest",
+        "ticket_type": "unnumbered",
+        "num_workers": 3,
+        "total_time": 50.503178119659424,
+        "total_operations": 20000,
+        "throughput": 396.01468154366665,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.01005304092168808,
+            "min_latency": 0.004639148712158203,
+            "max_latency": 0.23446369171142578,
+            "p50_latency": 0.00931692123413086,
+            "p95_latency": 0.015569210052490234,
+            "p99_latency": 0.02234172821044922
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:24:58.660431",
+        "architecture": "rest",
+        "ticket_type": "unnumbered",
+        "num_workers": 4,
+        "total_time": 50.898924589157104,
+        "total_operations": 20000,
+        "throughput": 392.935610357877,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.010131127119064331,
+            "min_latency": 0.004954338073730469,
+            "max_latency": 0.2242136001586914,
+            "p50_latency": 0.009556770324707031,
+            "p95_latency": 0.01513218879699707,
+            "p99_latency": 0.020482540130615234
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:29:03.164293",
+        "architecture": "rest",
+        "ticket_type": "unnumbered",
+        "num_workers": 5,
+        "total_time": 49.567970514297485,
+        "total_operations": 20000,
+        "throughput": 403.48636009277726,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.009865202736854553,
+            "min_latency": 0.004580020904541016,
+            "max_latency": 0.23488283157348633,
+            "p50_latency": 0.009026288986206055,
+            "p95_latency": 0.015394210815429688,
+            "p99_latency": 0.02344965934753418
+          }
+        }
+      }
+    ],
+    "rest_numbered": [
+      {
+        "timestamp": "2026-04-10T17:13:35.872522",
+        "architecture": "rest",
+        "ticket_type": "numbered",
+        "num_workers": 1,
+        "total_time": 68.55078506469727,
+        "total_operations": 25997,
+        "throughput": 379.2370864238009,
+        "success_rate": 76.93195368696388,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 20000,
+            "failed": 5997,
+            "success_rate": 76.93195368696388,
+            "avg_latency": 0.01050119006221522,
+            "min_latency": 0.0044405460357666016,
+            "max_latency": 0.09811925888061523,
+            "p50_latency": 0.009366035461425781,
+            "p95_latency": 0.018158435821533203,
+            "p99_latency": 0.028789758682250977
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:17:59.891497",
+        "architecture": "rest",
+        "ticket_type": "numbered",
+        "num_workers": 2,
+        "total_time": 71.47623491287231,
+        "total_operations": 25997,
+        "throughput": 363.71529686321156,
+        "success_rate": 76.93195368696388,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 20000,
+            "failed": 5997,
+            "success_rate": 76.93195368696388,
+            "avg_latency": 0.010951099970957296,
+            "min_latency": 0.004422187805175781,
+            "max_latency": 0.22974705696105957,
+            "p50_latency": 0.009803533554077148,
+            "p95_latency": 0.01852583885192871,
+            "p99_latency": 0.031014680862426758
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:22:03.989854",
+        "architecture": "rest",
+        "ticket_type": "numbered",
+        "num_workers": 3,
+        "total_time": 69.07908082008362,
+        "total_operations": 25997,
+        "throughput": 376.33679677512146,
+        "success_rate": 76.93195368696388,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 20000,
+            "failed": 5997,
+            "success_rate": 76.93195368696388,
+            "avg_latency": 0.010581236415337281,
+            "min_latency": 0.004674673080444336,
+            "max_latency": 0.24086713790893555,
+            "p50_latency": 0.009618759155273438,
+            "p95_latency": 0.017032146453857422,
+            "p99_latency": 0.027935266494750977
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:26:08.882540",
+        "architecture": "rest",
+        "ticket_type": "numbered",
+        "num_workers": 4,
+        "total_time": 69.51140928268433,
+        "total_operations": 25997,
+        "throughput": 373.9961578721149,
+        "success_rate": 76.93195368696388,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 20000,
+            "failed": 5997,
+            "success_rate": 76.93195368696388,
+            "avg_latency": 0.010648587522504145,
+            "min_latency": 0.00480961799621582,
+            "max_latency": 0.22665786743164062,
+            "p50_latency": 0.009908914566040039,
+            "p95_latency": 0.016016721725463867,
+            "p99_latency": 0.02565479278564453
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:30:19.347299",
+        "architecture": "rest",
+        "ticket_type": "numbered",
+        "num_workers": 5,
+        "total_time": 75.42586302757263,
+        "total_operations": 25997,
+        "throughput": 344.6695729619501,
+        "success_rate": 76.93195368696388,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 20000,
+            "failed": 5997,
+            "success_rate": 76.93195368696388,
+            "avg_latency": 0.01155803553639969,
+            "min_latency": 0.004545927047729492,
+            "max_latency": 0.2885422706604004,
+            "p50_latency": 0.010380983352661133,
+            "p95_latency": 0.018918991088867188,
+            "p99_latency": 0.03371787071228027
+          }
+        }
+      }
+    ],
+    "rabbitmq_unnumbered": [
+      {
+        "timestamp": "2026-04-10T17:34:18.490746",
+        "architecture": "rabbitmq",
+        "ticket_type": "unnumbered",
+        "num_workers": 1,
+        "total_time": 34.24832320213318,
+        "total_operations": 20000,
+        "throughput": 583.9701956198045,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.6774792712335486,
+            "min_latency": 0.05806699499999013,
+            "max_latency": 1.8083767030000217,
+            "p50_latency": 0.6337014630000795,
+            "p95_latency": 1.0696697020000556,
+            "p99_latency": 1.628143879999925
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:37:15.611313",
+        "architecture": "rabbitmq",
+        "ticket_type": "unnumbered",
+        "num_workers": 2,
+        "total_time": 11.390039920806885,
+        "total_operations": 20000,
+        "throughput": 1755.920096773741,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.22346695147930012,
+            "min_latency": 0.05413725400012481,
+            "max_latency": 0.2766449850000754,
+            "p50_latency": 0.22365903500008244,
+            "p95_latency": 0.25843544600002133,
+            "p99_latency": 0.2672607590000098
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:40:35.105517",
+        "architecture": "rabbitmq",
+        "ticket_type": "unnumbered",
+        "num_workers": 3,
+        "total_time": 8.521623849868774,
+        "total_operations": 20000,
+        "throughput": 2346.970524908581,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.16592325235564945,
+            "min_latency": 0.031164169000021502,
+            "max_latency": 0.42250491599997986,
+            "p50_latency": 0.17115500899990366,
+            "p95_latency": 0.20922878800001854,
+            "p99_latency": 0.3765352999998868
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:42:26.647551",
+        "architecture": "rabbitmq",
+        "ticket_type": "unnumbered",
+        "num_workers": 4,
+        "total_time": 7.277467489242554,
+        "total_operations": 20000,
+        "throughput": 2748.2087731156075,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.1405945945938507,
+            "min_latency": 0.03478030799988119,
+            "max_latency": 0.40261093399976744,
+            "p50_latency": 0.1559408460002487,
+            "p95_latency": 0.1923259750001307,
+            "p99_latency": 0.20819699899993793
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:46:37.824947",
+        "architecture": "rabbitmq",
+        "ticket_type": "unnumbered",
+        "num_workers": 5,
+        "total_time": 6.849027633666992,
+        "total_operations": 20000,
+        "throughput": 2920.1225443577214,
+        "success_rate": 100.0,
+        "by_type": {
+          "unnumbered": {
+            "type": "unnumbered",
+            "total": 20000,
+            "successful": 20000,
+            "failed": 0,
+            "success_rate": 100.0,
+            "avg_latency": 0.13232537707304953,
+            "min_latency": 0.0019466469998405955,
+            "max_latency": 0.4290837140001713,
+            "p50_latency": 0.15130618800003504,
+            "p95_latency": 0.1910902040003748,
+            "p99_latency": 0.20618479799986744
+          }
+        }
+      }
+    ],
+    "rabbitmq_numbered": [
+      {
+        "timestamp": "2026-04-10T17:34:52.163431",
+        "architecture": "rabbitmq",
+        "ticket_type": "numbered",
+        "num_workers": 1,
+        "total_time": 33.509883403778076,
+        "total_operations": 25997,
+        "throughput": 775.8009685306445,
+        "success_rate": 93.44924414355502,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 24294,
+            "failed": 1703,
+            "success_rate": 93.44924414355502,
+            "avg_latency": 0.5099207681214367,
+            "min_latency": 0.05392241300000933,
+            "max_latency": 0.684832502999825,
+            "p50_latency": 0.48300001699999484,
+            "p95_latency": 0.6444153719999122,
+            "p99_latency": 0.6754528379999556
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:37:30.640588",
+        "architecture": "rabbitmq",
+        "ticket_type": "numbered",
+        "num_workers": 2,
+        "total_time": 14.862893104553223,
+        "total_operations": 25997,
+        "throughput": 1749.1211042913214,
+        "success_rate": 93.44924414355502,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 24294,
+            "failed": 1703,
+            "success_rate": 93.44924414355502,
+            "avg_latency": 0.22511242148559452,
+            "min_latency": 0.05039051400012795,
+            "max_latency": 0.46815426700004537,
+            "p50_latency": 0.22453109699995366,
+            "p95_latency": 0.2577281660001063,
+            "p99_latency": 0.27945581099993433
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:40:46.146379",
+        "architecture": "rabbitmq",
+        "ticket_type": "numbered",
+        "num_workers": 3,
+        "total_time": 10.873137474060059,
+        "total_operations": 25997,
+        "throughput": 2390.9382238586422,
+        "success_rate": 93.44924414355502,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 24294,
+            "failed": 1703,
+            "success_rate": 93.44924414355502,
+            "avg_latency": 0.16347789612886002,
+            "min_latency": 0.04356741899982808,
+            "max_latency": 0.42975474100012434,
+            "p50_latency": 0.16604865799990876,
+            "p95_latency": 0.2101626749999923,
+            "p99_latency": 0.2338425139996616
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:42:36.563439",
+        "architecture": "rabbitmq",
+        "ticket_type": "numbered",
+        "num_workers": 4,
+        "total_time": 9.746755123138428,
+        "total_operations": 25997,
+        "throughput": 2667.246655072323,
+        "success_rate": 93.44924414355502,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 24294,
+            "failed": 1703,
+            "success_rate": 93.44924414355502,
+            "avg_latency": 0.1462861740014984,
+            "min_latency": 0.04568968000012319,
+            "max_latency": 0.38289298600011534,
+            "p50_latency": 0.15462731099978555,
+            "p95_latency": 0.18759483700023338,
+            "p99_latency": 0.20035769099968093
+          }
+        }
+      },
+      {
+        "timestamp": "2026-04-10T17:46:46.932567",
+        "architecture": "rabbitmq",
+        "ticket_type": "numbered",
+        "num_workers": 5,
+        "total_time": 8.940423250198364,
+        "total_operations": 25997,
+        "throughput": 2907.804169050184,
+        "success_rate": 93.44924414355502,
+        "by_type": {
+          "numbered": {
+            "type": "numbered",
+            "total": 25997,
+            "successful": 24294,
+            "failed": 1703,
+            "success_rate": 93.44924414355502,
+            "avg_latency": 0.13363551987821684,
+            "min_latency": 0.0015083640000739251,
+            "max_latency": 0.4035677899996699,
+            "p50_latency": 0.15426176499977373,
+            "p95_latency": 0.1917493050000303,
+            "p99_latency": 0.2094731239999419
+          }
+        }
+      }
+    ]
+  },
+  "analyses": {
+    "rest_unnumbered": {
+      "architecture": "rest",
+      "ticket_type": "unnumbered",
+      "num_workers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "throughputs": [
+        388.77403012347486,
+        376.8406684393995,
+        396.01468154366665,
+        392.935610357877,
+        403.48636009277726
+      ],
+      "latencies": [
+        0.01023894271850586,
+        0.010565426158905029,
+        0.01005304092168808,
+        0.010131127119064331,
+        0.009865202736854553
+      ],
+      "success_rates": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "scalability_factors": [
+        1.0,
+        0.9693051470534559,
+        1.0186243186508424,
+        1.010704367863976,
+        1.0378428825727628
+      ]
+    },
+    "rest_numbered": {
+      "architecture": "rest",
+      "ticket_type": "numbered",
+      "num_workers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "throughputs": [
+        379.2370864238009,
+        363.71529686321156,
+        376.33679677512146,
+        373.9961578721149,
+        344.6695729619501
+      ],
+      "latencies": [
+        0.01050119006221522,
+        0.010951099970957296,
+        0.010581236415337281,
+        0.010648587522504145,
+        0.01155803553639969
+      ],
+      "success_rates": [
+        76.93195368696388,
+        76.93195368696388,
+        76.93195368696388,
+        76.93195368696388,
+        76.93195368696388
+      ],
+      "scalability_factors": [
+        1.0,
+        0.9590710135789736,
+        0.9923523047916301,
+        0.9861803374740907,
+        0.9088498601552347
+      ]
+    },
+    "rabbitmq_unnumbered": {
+      "architecture": "rabbitmq",
+      "ticket_type": "unnumbered",
+      "num_workers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "throughputs": [
+        583.9701956198045,
+        1755.920096773741,
+        2346.970524908581,
+        2748.2087731156075,
+        2920.1225443577214
+      ],
+      "latencies": [
+        0.6774792712335486,
+        0.22346695147930012,
+        0.16592325235564945,
+        0.1405945945938507,
+        0.13232537707304953
+      ],
+      "success_rates": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "scalability_factors": [
+        1.0,
+        3.0068659495714023,
+        4.018990254147462,
+        4.706077114430061,
+        5.0004650344499355
+      ]
+    },
+    "rabbitmq_numbered": {
+      "architecture": "rabbitmq",
+      "ticket_type": "numbered",
+      "num_workers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "throughputs": [
+        775.8009685306445,
+        1749.1211042913214,
+        2390.9382238586422,
+        2667.246655072323,
+        2907.804169050184
+      ],
+      "latencies": [
+        0.5099207681214367,
+        0.22511242148559452,
+        0.16347789612886002,
+        0.1462861740014984,
+        0.13363551987821684
+      ],
+      "success_rates": [
+        93.44924414355502,
+        93.44924414355502,
+        93.44924414355502,
+        93.44924414355502,
+        93.44924414355502
+      ],
+      "scalability_factors": [
+        1.0,
+        2.2546003101853955,
+        3.08189641524558,
+        3.43805533025313,
+        3.748131656186924
+      ]
+    }
+  }
+}
