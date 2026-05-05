@@ -233,6 +233,71 @@ class PlotGenerator:
         else:
             return fig
 
+    def plot_latency_breakdown_comparison(self, ticket_type: str, save: bool = True):
+        """
+        Compare client, server and overhead latency for REST vs RabbitMQ.
+
+        Client latency is the buyer-visible end-to-end latency. Server latency is
+        the backend/worker processing time reported by the server side. Overhead
+        is the difference between both values.
+        """
+        if not MATPLOTLIB_AVAILABLE:
+            logger.warning("matplotlib not available")
+            return None
+
+        rest_analysis = self.analyzer.get_scalability_analysis("rest", ticket_type)
+        rabbit_analysis = self.analyzer.get_scalability_analysis("rabbitmq", ticket_type)
+
+        if not (rest_analysis.get("num_workers") and rabbit_analysis.get("num_workers")):
+            logger.warning(f"No latency breakdown data for comparison: {ticket_type}")
+            return None
+
+        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+        fig.suptitle(
+            f"Latency Breakdown: REST vs RabbitMQ - {ticket_type.upper()} Tickets",
+            fontsize=16,
+        )
+
+        series = [
+            ("latencies", "Client Latency", "Avg Client Latency (seconds)"),
+            ("server_latencies", "Server Latency", "Avg Server Latency (seconds)"),
+            ("overhead_latencies", "Transport/Queue Overhead", "Avg Overhead Latency (seconds)"),
+        ]
+
+        for ax, (metric_key, title, ylabel) in zip(axes, series):
+            ax.plot(
+                rest_analysis["num_workers"],
+                rest_analysis.get(metric_key, []),
+                "o-",
+                label="REST",
+                linewidth=2,
+                markersize=8,
+            )
+            ax.plot(
+                rabbit_analysis["num_workers"],
+                rabbit_analysis.get(metric_key, []),
+                "s-",
+                label="RabbitMQ",
+                linewidth=2,
+                markersize=8,
+            )
+            ax.set_xlabel(self.x_axis_label)
+            ax.set_ylabel(ylabel)
+            ax.set_title(title)
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+
+        if save:
+            filepath = os.path.join(
+                self.output_dir,
+                f"latency_breakdown_{ticket_type}{self.label_suffix}.png",
+            )
+            plt.savefig(filepath, dpi=150, bbox_inches="tight")
+            logger.info(f"Latency breakdown plot saved: {filepath}")
+            plt.close()
+            return filepath
+        return fig
+
     def generate_all_plots(self):
         """Generate all available plots."""
         logger.info("Generating plots...")
@@ -249,6 +314,9 @@ class PlotGenerator:
         # Comparison plots
         for ticket_type in ["unnumbered", "numbered"]:
             plot = self.plot_comparison(ticket_type)
+            if plot:
+                plots_created.append(plot)
+            plot = self.plot_latency_breakdown_comparison(ticket_type)
             if plot:
                 plots_created.append(plot)
         
