@@ -7,7 +7,7 @@ HTTP keep-alive pools.
 import os
 import sys
 import threading
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 import requests
 from flask import Flask, Response, jsonify, request
@@ -149,7 +149,7 @@ class RoundRobinLoadBalancer:
         return healthy, statuses
 
 
-load_balancer: RoundRobinLoadBalancer | None = None
+load_balancer: Optional[RoundRobinLoadBalancer] = None
 
 
 @app.route("/health", methods=["GET"])
@@ -174,7 +174,7 @@ def proxy(path: str):
     return load_balancer.proxy(path)
 
 
-def main(host: str = "0.0.0.0", port: int = 8000, backends: Iterable[str] | None = None, debug: bool = False):
+def main(host: str = "0.0.0.0", port: int = 8000, backends: Optional[Iterable[str]] = None, debug: bool = False):
     """Start the load balancer."""
     global load_balancer
 

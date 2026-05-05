@@ -6,7 +6,7 @@ import threading
 import requests
 import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from requests.adapters import HTTPAdapter
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -99,7 +99,7 @@ class RestClient:
             raise last_exception
         raise RuntimeError("Request failed without exception")
 
-    def buy_unnumbered(self, client_id: str, request_id: int) -> Tuple[bool, float, float | None]:
+    def buy_unnumbered(self, client_id: str, request_id: int) -> Tuple[bool, float, Optional[float]]:
         """
         Buy an unnumbered ticket.
         
@@ -139,7 +139,7 @@ class RestClient:
             logger.debug(f"Request failed: {e}")
             return False, latency, None
 
-    def buy_numbered(self, seat_id: int, client_id: str, request_id: int) -> Tuple[bool, float, float | None]:
+    def buy_numbered(self, seat_id: int, client_id: str, request_id: int) -> Tuple[bool, float, Optional[float]]:
         """
         Buy a specific numbered seat.
         

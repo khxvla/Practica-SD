@@ -108,9 +108,9 @@ class RabbitMQClient:
             logger.debug(f"Request publish failed: {e}")
             return None
 
-    def collect_available_responses(self, time_limit: float = 0.05) -> List[Tuple[str, bool, float, float | None]]:
+    def collect_available_responses(self, time_limit: float = 0.05) -> List[Tuple[str, bool, float, Optional[float]]]:
         """Pump the connection and collect every response currently available."""
-        completed: List[Tuple[str, bool, float, float | None]] = []
+        completed: List[Tuple[str, bool, float, Optional[float]]] = []
 
         try:
             self.connection.process_data_events(time_limit=time_limit)
@@ -136,7 +136,7 @@ class RabbitMQClient:
 
         return completed
 
-    def wait_for_one_response(self) -> List[Tuple[str, bool, float, float | None]]:
+    def wait_for_one_response(self) -> List[Tuple[str, bool, float, Optional[float]]]:
         """Wait until at least one response arrives or a pending request times out."""
         deadline = time.perf_counter() + self.timeout
 
@@ -152,7 +152,7 @@ class RabbitMQClient:
                 if now - start_time >= self.timeout
             ]
             if expired_ids:
-                timed_out: List[Tuple[str, bool, float, float | None]] = []
+                timed_out: List[Tuple[str, bool, float, Optional[float]]] = []
                 for correlation_id in expired_ids:
                     start_time, op_type = self.pending_requests.pop(correlation_id)
                     self.responses.pop(correlation_id, None)
@@ -166,9 +166,9 @@ class RabbitMQClient:
 
         return []
 
-    def flush_pending_responses(self) -> List[Tuple[str, bool, float, float | None]]:
+    def flush_pending_responses(self) -> List[Tuple[str, bool, float, Optional[float]]]:
         """Wait for every outstanding response."""
-        completed: List[Tuple[str, bool, float, float | None]] = []
+        completed: List[Tuple[str, bool, float, Optional[float]]] = []
         while self.pending_requests:
             batch = self.wait_for_one_response()
             if not batch:
