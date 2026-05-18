@@ -7,6 +7,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.common.logger import get_logger
+from src.common.config import TOTAL_TICKETS
 
 logger = get_logger(__name__)
 
@@ -103,7 +104,7 @@ class BenchmarkParser:
     def _validate_unnumbered(self, redis_backend):
         """Validate unnumbered tickets correctness."""
         sold_count = redis_backend.get_unnumbered_count()
-        expected = min(len(self.operations), 20000)
+        expected = min(len(self.operations), TOTAL_TICKETS)
         
         if sold_count != expected:
             msg = f"Expected {expected} sold, got {sold_count}"
@@ -125,7 +126,7 @@ class BenchmarkParser:
             return False, msg
         
         # Check all sold seats are valid
-        invalid_seats = [s for s in sold_seats if not (1 <= int(s) <= 20000)]
+        invalid_seats = [s for s in sold_seats if not (1 <= int(s) <= TOTAL_TICKETS)]
         if invalid_seats:
             msg = f"Invalid seats found: {invalid_seats}"
             logger.error(msg)
@@ -148,7 +149,7 @@ def create_hotspot_benchmark(output_file, num_operations=20000, hotspot_percent=
     """
     import random
     
-    total_seats = 20000
+    total_seats = TOTAL_TICKETS
     hotspot_seats = max(1, int(total_seats * hotspot_percent / 100))
     hotspot_request_count = int(num_operations * hotspot_traffic / 100)
     normal_request_count = num_operations - hotspot_request_count

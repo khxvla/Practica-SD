@@ -9,6 +9,7 @@ Sistema distribuido de venta de entradas para comparar comunicación directa (`R
 - RabbitMQ
 - PostgreSQL (para la arquitectura Lambda)
 - Cuenta AWS Academy (para ejecución con Lambda)
+- **Terraform** (para despliegue IaC - Requisito 11)
 
 Instala las dependencias Python:
 
@@ -27,6 +28,8 @@ python -m pip install -r requirements.txt
 | `postgres-server`  | `172.31.46.203` | —               | PostgreSQL (backend Lambda)                         |
 | `client.1` / `client.2` | —         | —               | Ejecución de benchmarks                             |
 
+> **IaC (Infrastructure as Code):** La carpeta `terraform/` permite desplegar toda esta topología en AWS de forma automatizada (cumpliendo el **Requisito 11** de forma íntegra).
+
 Todas las máquinas que ejecuten código Python deben clonar el repo e instalar:
 
 ```bash
@@ -42,6 +45,10 @@ python -m pip install -r requirements.txt
 benchmarks/                          Ficheros de benchmark fijos
 scripts/                             Scripts de ayuda para Linux/AWS
   └── setup_rabbit.sh
+terraform/                           Despliegue IaC en AWS (Requisito 11)
+  ├── main.tf
+  ├── variables.tf
+  └── outputs.tf
 src/
   common/
     config.py                        Configuración centralizada (IPs, constantes elásticas)
@@ -81,7 +88,7 @@ results/
 | Tipo          | Descripción                                          |
 |---------------|------------------------------------------------------|
 | `unnumbered`  | Máximo 100.000 compras exitosas (contador atómico)   |
-| `numbered`    | Asientos `1..20000`, cada asiento se vende una sola vez |
+| `numbered`    | Asientos `1..100000`, cada asiento se vende una sola vez |
 
 ---
 

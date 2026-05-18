@@ -1,7 +1,37 @@
-#!/bin/bash
 # Deployment & Operations Guide
-# One-command setup for AWS EC2 instances
 
+Esta guía cubre el despliegue del sistema Ticket-Service utilizando **Infrastructure as Code (Terraform)** cumpliendo con el **Requisito 11**, y también incluye el script bash `one-command` original.
+
+---
+
+## Opción 1: Despliegue con Terraform (Recomendado - Requisito 11)
+
+La carpeta `terraform/` contiene la definición de IaC necesaria para aprovisionar toda la topología en tu VPC de AWS Academy con un solo comando. Despliega instancias EC2 configuradas automáticamente (RabbitMQ, PostgreSQL, Redis y workers).
+
+### Pasos:
+1. Navega a la carpeta de Terraform:
+   ```bash
+   cd terraform
+   ```
+2. Inicializa Terraform:
+   ```bash
+   terraform init
+   ```
+3. Aplica los cambios (Te pedirá el `vpc_id` y `subnet_id` de tu laboratorio de AWS Academy):
+   ```bash
+   terraform apply
+   ```
+4. **Al finalizar**, Terraform imprimirá las IPs privadas (`data_node_private_ip` y `worker_node_private_ip`).
+5. Copia esas IPs en el fichero `src/common/config.py`.
+
+---
+
+## Opción 2: Script Bash (One-Command Setup para Instancias EC2)
+
+Si prefieres ejecutar el despliegue de forma manual desde dentro de una instancia EC2 limpia (Ubuntu), puedes usar el siguiente script `setup.sh`:
+
+```bash
+#!/bin/bash
 set -e
 
 echo "=========================================="
@@ -79,3 +109,4 @@ echo "Redis:         $REDIS_HOST:6379"
 echo "RabbitMQ:      $RABBITMQ_HOST:5672"
 echo "REST LB:       http://0.0.0.0:8000"
 echo "=========================================="
+```

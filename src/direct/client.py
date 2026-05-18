@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from src.common.logger import get_logger
 from src.common.metrics import MetricsCollector
-from src.common.config import REST_CLIENT_URL
+from src.common.config import REST_BENCHMARK_URL as REST_CLIENT_URL
 from src.benchmarks.parser import BenchmarkParser
 
 # Inicializar el gestor de trazas unificado
@@ -268,6 +268,49 @@ class RestBenchmarkRunner:
         self.metrics.print_summary()
         return self.metrics
 
+    def run_benchmark(self, benchmark_file: str) -> MetricsCollector:
+        """Run a fixed benchmark file through the REST architecture.
+
+        Reads operations from *benchmark_file* and submits them concurrently
+        using the thread pool.  This is the interface expected by
+        BackendScalingSuite in backend_scaling_runner.py.
+        """
+        from src.benchmarks.parser import BenchmarkParser
+
+        logger.info("Starting REST benchmark from %s", benchmark_file)
+        parser = BenchmarkParser(benchmark_file)
+        operations = parser.parse()
+        if not operations:
+            logger.warning("No operations found in %s", benchmark_file)
+            return self.metrics
+
+        self.metrics = MetricsCollector()
+        self.metrics.start()
+
+        client_id = f"rest-bench-{os.getpid()}"
+
+        def submit_op(op: dict):
+            op_type = op.get("type", "unnumbered")
+            req_id = str(uuid.uuid4())
+            if op_type == "numbered":
+                seat_id = op.get("seat_id", random.randint(1, 100000))
+                success, latency = self.client.buy_numbered(seat_id, client_id, req_id)
+            else:
+                success, latency = self.client.buy_unnumbered(client_id, req_id)
+            self.metrics.record_operation(op_type, success, latency)
+
+        with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            futures = [executor.submit(submit_op, op) for op in operations]
+            for future in futures:
+                try:
+                    future.result()
+                except Exception as exc:
+                    logger.error("Operation failed: %s", exc)
+
+        self.metrics.end()
+        self.metrics.print_summary()
+        return self.metrics
+
     def _execute_unnumbered(self, client_id: str, request_id: str):
         """Helper para empaquetar y medir operaciones generales sin numerar."""
         success, latency = self.client.buy_unnumbered(client_id, request_id)
@@ -277,6 +320,7 @@ class RestBenchmarkRunner:
         """Helper para empaquetar y medir operaciones directas numeradas."""
         success, latency = self.client.buy_numbered(seat_id, client_id, request_id)
         self.metrics.record_operation("numbered", success, latency)
+
 
 
 def main():

@@ -99,13 +99,21 @@ def buy_unnumbered():
         # Attempt purchase
         success = redis_backend.buy_unnumbered_idempotent(client_id, request_id)
         
+        # Req 9: record server-side completion timestamp
+        try:
+            redis_backend.record_server_metric(
+                request_id=str(request_id), success=success, timestamp=time.time()
+            )
+        except Exception:
+            pass
+
         response = {
             "success": success,
             "client_id": client_id,
             "request_id": request_id,
             "type": "unnumbered"
         }
-        
+
         if success:
             response["message"] = "Ticket purchased successfully"
             return jsonify(response), 200
@@ -164,6 +172,14 @@ def buy_numbered(seat_id):
         # Attempt purchase
         success = redis_backend.buy_numbered_idempotent(seat_id, client_id, request_id)
         
+        # Req 9: record server-side completion timestamp
+        try:
+            redis_backend.record_server_metric(
+                request_id=str(request_id), success=success, timestamp=time.time()
+            )
+        except Exception:
+            pass
+
         response = {
             "success": success,
             "client_id": client_id,
@@ -171,7 +187,7 @@ def buy_numbered(seat_id):
             "seat_id": seat_id,
             "type": "numbered"
         }
-        
+
         if success:
             response["message"] = f"Seat {seat_id} purchased successfully"
             return jsonify(response), 200
