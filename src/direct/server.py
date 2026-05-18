@@ -92,6 +92,10 @@ def buy_unnumbered():
         if not client_id or request_id is None:
             return jsonify({"error": "Missing client_id or request_id"}), 400
         
+        # --- SECCIÓN 4 DEL ENUNCIADO: REQUISITO DE REALISMO (DELAY 100ms) ---
+        # Modela la latencia externa de procesamiento de pasarelas de pago bancarias
+        time.sleep(0.100)
+        
         # Attempt purchase
         success = redis_backend.buy_unnumbered_idempotent(client_id, request_id)
         
@@ -152,6 +156,10 @@ def buy_numbered(seat_id):
             return jsonify({
                 "error": f"Invalid seat ID: {seat_id}. Must be between 1 and 20000"
             }), 400
+        
+        # --- SECCIÓN 4 DEL ENUNCIADO: REQUISITO DE REALISMO (DELAY 100ms) ---
+        # Modela la latencia externa de procesamiento de pasarelas de pago bancarias
+        time.sleep(0.100)
         
         # Attempt purchase
         success = redis_backend.buy_numbered_idempotent(seat_id, client_id, request_id)
