@@ -1,5 +1,6 @@
 """Redis backend for consistency and coordination."""
 import redis
+import json
 from src.common.config import REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD, TOTAL_TICKETS
 from src.common.logger import get_logger
 
@@ -192,8 +193,6 @@ class RedisBackend:
             self.redis_client.delete(*keys)
             logger.warning(f"Cleared {len(keys)} keys from Redis")
 
-
-
     def is_duplicate_request(self, request_id: str) -> bool:
         """
         Sección 10: Garantiza idempotencia (Retry safety).
@@ -202,7 +201,7 @@ class RedisBackend:
         if not request_id:
             return False
         # Si la clave existe en Redis, significa que ya fue procesada por algún worker
-        return self.client.exists(f"processed_req:{request_id}")
+        return self.redis_client.exists(f"processed_req:{request_id}")
 
     def record_server_metric(self, request_id: str, success: bool, timestamp: float):
         """
@@ -218,10 +217,10 @@ class RedisBackend:
             "success": str(success),
             "timestamp_completado": str(timestamp)
         }
-        self.client.hset(f"processed_req:{request_id}", mapping=metric_data)
+        self.redis_client.hset(f"processed_req:{request_id}", mapping=metric_data)
         
         # Almacenamos el timestamp en una lista ordenada o Set para que el analizador lo recupere rápido
-        self.client.rpush("server_metrics_timeline", json.dumps({
+        self.redis_client.rpush("server_metrics_timeline", json.dumps({
             "request_id": request_id,
             "success": success,
             "timestamp": timestamp
