@@ -130,8 +130,7 @@ class TicketWorker:
                     timestamp=time.time()
                 )
             except Exception as metric_err:
-                # Fallback por si vuestro backend aún no implementa este método exacto
-                pass
+                logger.warning(f"[{self.worker_id}] Failed to record server metric for req {request_id}: {metric_err}")
 
             # Preparar payload de respuesta
             response = {

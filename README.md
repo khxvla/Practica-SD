@@ -255,7 +255,7 @@ python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket
 python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
 python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 1 --client-workers 4 --label aws_backend
 python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 2 --client-workers 4 --label aws_backend
-python src/benchmarks/backend_scaling_Runner.py --architecture rabbitmq --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
+python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
 ```
 
 Usar el mismo `--label` para ambas arquitecturas añade datos a la misma serie y regenera los plots comparativos.

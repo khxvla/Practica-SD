@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from src.common.redis_backend import RedisBackend
 from src.common.logger import get_logger
-from src.common.config import REST_HOST, REST_PORT
+from src.common.config import REST_HOST, REST_PORT, TOTAL_TICKETS
 
 logger = get_logger(__name__)
 app = Flask(__name__)
@@ -152,9 +152,9 @@ def buy_numbered(seat_id):
             return jsonify({"error": "Missing client_id or request_id"}), 400
         
         # Validate seat ID
-        if seat_id < 1 or seat_id > 20000:
+        if seat_id < 1 or seat_id > TOTAL_TICKETS:
             return jsonify({
-                "error": f"Invalid seat ID: {seat_id}. Must be between 1 and 20000"
+                "error": f"Invalid seat ID: {seat_id}. Must be between 1 and {TOTAL_TICKETS}"
             }), 400
         
         # --- SECCIÓN 4 DEL ENUNCIADO: REQUISITO DE REALISMO (DELAY 100ms) ---

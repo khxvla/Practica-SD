@@ -57,7 +57,7 @@ class RedisBackend:
         Returns True if successful, False if sold out.
         """
         current = self.redis_client.incr("tickets:unnumbered:count")
-        if current <= 20000:
+        if current <= TOTAL_TICKETS:
             return True
         else:
             # Decrement back if we went over
@@ -110,7 +110,7 @@ class RedisBackend:
         """
         try:
             seat_id = int(seat_id)
-            if seat_id < 1 or seat_id > 20000:
+            if seat_id < 1 or seat_id > TOTAL_TICKETS:
                 return False
         except (ValueError, TypeError):
             return False

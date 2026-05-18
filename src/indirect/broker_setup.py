@@ -25,6 +25,7 @@ class BrokerSetup:
     EXCHANGE_TICKETS = "ticket_exchange"
     QUEUE_REQUESTS = "ticket_requests"
     QUEUE_RESPONSES = "ticket_responses"
+    QUEUE_DLQ = "ticket_dlq"  # Dead-Letter Queue (Req 10: fault tolerance)
     ROUTING_KEY_REQUEST = "request"
 
     def __init__(self):
@@ -57,7 +58,21 @@ class BrokerSetup:
             exchange_type="direct",
             durable=True,
         )
-        self.channel.queue_declare(queue=self.QUEUE_REQUESTS, durable=True)
+
+        # Dead-Letter Queue (Req 10): messages rejected >3 times are routed here
+        # instead of being silently dropped or causing infinite requeue loops.
+        self.channel.queue_declare(queue=self.QUEUE_DLQ, durable=True)
+
+        # Main request queue — links to DLQ on rejection
+        self.channel.queue_declare(
+            queue=self.QUEUE_REQUESTS,
+            durable=True,
+            arguments={
+                "x-dead-letter-exchange": "",
+                "x-dead-letter-routing-key": self.QUEUE_DLQ,
+                "x-message-ttl": 300_000,   # 5 min max in queue
+            },
+        )
         self.channel.queue_declare(queue=self.QUEUE_RESPONSES, durable=True)
         self.channel.queue_bind(
             exchange=self.EXCHANGE_TICKETS,
@@ -65,10 +80,11 @@ class BrokerSetup:
             routing_key=self.ROUTING_KEY_REQUEST,
         )
         logger.info(
-            "Broker topology ready: exchange=%s, request_queue=%s, response_queue=%s",
+            "Broker topology ready: exchange=%s, request_queue=%s, response_queue=%s, dlq=%s",
             self.EXCHANGE_TICKETS,
             self.QUEUE_REQUESTS,
             self.QUEUE_RESPONSES,
+            self.QUEUE_DLQ,
         )
 
     def purge_queues(self):

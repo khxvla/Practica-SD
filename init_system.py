@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.common.logger import get_logger
 from src.common.redis_backend import RedisBackend
+from src.common.config import TOTAL_TICKETS
 
 logger = get_logger(__name__)
 
@@ -29,8 +30,8 @@ def main():
 
         stats = backend.get_stats()
         logger.info("System Status:")
-        logger.info(f"  Unnumbered tickets sold: {stats['unnumbered_sold']}/20000")
-        logger.info(f"  Numbered tickets available: {stats['numbered_available']}/20000")
+        logger.info(f"  Unnumbered tickets sold: {stats['unnumbered_sold']}/{TOTAL_TICKETS}")
+        logger.info(f"  Numbered tickets available: {stats['numbered_available']}/{TOTAL_TICKETS}")
         logger.info(f"  Numbered tickets sold: {stats['numbered_sold']}")
         logger.info("Initialization complete!")
         return True
