@@ -164,8 +164,40 @@ class TicketWorker:
         except Exception as e:
             logger.error(f"[{self.worker_id}] Error processing request: {e}")
             self.error_count += 1
-            # Tolerancia a fallos (Sección 10): Al hacer nack con requeue=True garantizamos 'at-least-once'
-            self.channel.basic_nack(delivery_tag=method_frame.delivery_tag, requeue=True)
+
+            # Req 10 — DLQ routing: track retry count via message headers.
+            # After MAX_RETRIES failures, nack with requeue=False so RabbitMQ
+            # routes the message to ticket_dlq instead of looping indefinitely.
+            MAX_RETRIES = 3
+            retry_count = 0
+            if properties and properties.headers:
+                retry_count = int(properties.headers.get("x-retry-count", 0))
+
+            if retry_count < MAX_RETRIES:
+                # Re-publish with incremented retry count so the header persists
+                updated_headers = dict(properties.headers or {})
+                updated_headers["x-retry-count"] = retry_count + 1
+                try:
+                    self.channel.basic_publish(
+                        exchange="",
+                        routing_key=BrokerSetup.QUEUE_REQUESTS,
+                        body=body,
+                        properties=pika.BasicProperties(
+                            delivery_mode=2,
+                            headers=updated_headers,
+                            reply_to=properties.reply_to if properties else None,
+                            correlation_id=properties.correlation_id if properties else None,
+                        ),
+                    )
+                except Exception:
+                    pass
+                self.channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+                logger.warning(f"[{self.worker_id}] Retry {retry_count + 1}/{MAX_RETRIES} for req")
+            else:
+                # Max retries exceeded → route to DLQ
+                logger.error(f"[{self.worker_id}] Max retries reached, routing to DLQ")
+                self.channel.basic_nack(delivery_tag=method_frame.delivery_tag, requeue=False)
+
             return True
 
     def run(self):
