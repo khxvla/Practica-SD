@@ -1,124 +1,149 @@
 # Scalable Concert Ticket Acquisition System
 
-Distributed ticket-selling system for comparing direct communication (`REST`) and indirect communication (`RabbitMQ`) under load and contention.
+Sistema distribuido de venta de entradas para comparar comunicación directa (`REST`) e indirecta (`RabbitMQ`) bajo carga y contención, con soporte de **escalado elástico automático** y backend **PostgreSQL** mediante **AWS Lambda**.
 
-## Requirements
+## Requisitos
 
 - Python 3.12
 - Redis
 - RabbitMQ
-Install Python dependencies:
+- PostgreSQL (para la arquitectura Lambda)
+- Cuenta AWS Academy (para ejecución con Lambda)
+
+Instala las dependencias Python:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-For the AWS delivery, services are split across the VPC machines:
+> **Nota:** Para la arquitectura Lambda también se necesitan `psycopg2`, `boto3` y `pika`. Instálalos manualmente si no están en `requirements.txt`.
 
-- `worker-server` (`10.0.1.118` private, `52.91.229.23` public): Redis, direct REST servers, direct load balancer, indirect workers
-- `rabbitmq-server` (`10.0.1.106` private, `34.201.110.76` public): RabbitMQ broker
-- `client.1` / `client.2`: benchmark execution
+### Topología AWS del laboratorio
 
-Every machine that runs Python code should use the same repo and install:
+| Instancia          | IP privada      | IP pública      | Servicios                                           |
+|--------------------|-----------------|-----------------|-----------------------------------------------------|
+| `worker-server`    | `10.0.1.118`    | `52.91.229.23`  | Redis, servidores REST, load balancer, workers MQ   |
+| `rabbitmq-server`  | `10.0.1.106`    | `34.201.110.76` | RabbitMQ broker                                     |
+| `postgres-server`  | `172.31.46.203` | —               | PostgreSQL (backend Lambda)                         |
+| `client.1` / `client.2` | —         | —               | Ejecución de benchmarks                             |
+
+Todas las máquinas que ejecuten código Python deben clonar el repo e instalar:
 
 ```bash
 cd ~/Practica-SD
 python -m pip install -r requirements.txt
 ```
 
-## Project Layout
+---
+
+## Estructura del proyecto
 
 ```text
-benchmarks/               Fixed benchmark files
-scripts/                  Linux/AWS helper scripts
-src/common/               Shared config, metrics, Redis backend, logging
-src/direct/               REST implementation
-src/indirect/             RabbitMQ implementation
-src/benchmarks/           Backend-scaling runner, parser, analyzer, plots
-init_system.py            Reset and initialize Redis state
+benchmarks/                          Ficheros de benchmark fijos
+scripts/                             Scripts de ayuda para Linux/AWS
+  └── setup_rabbit.sh
+src/
+  common/
+    config.py                        Configuración centralizada (IPs, constantes elásticas)
+    logger.py                        Logger compartido
+    metrics.py                       Recolección de métricas
+    redis_backend.py                 Backend Redis (arquitecturas directa e indirecta clásica)
+    postgres_backend.py              Backend PostgreSQL con control ACID para Lambda
+  direct/
+    server.py                        Servidor REST Flask
+    load_balancer.py                 Balanceador de carga custom (round-robin)
+    client.py                        Cliente benchmark REST
+  indirect/
+    broker_setup.py                  Configuración de la topología RabbitMQ
+    worker.py                        Worker RabbitMQ clásico
+    worker_lambda.py                 Handler Lambda stateless (PostgreSQL + idempotencia)
+    elastic_launcher.py              Lanzador elástico de workers por profundidad de cola
+    client.py                        Cliente benchmark RabbitMQ
+  benchmarks/
+    backend_scaling_runner.py        Runner de escalado backend (genera plots comparativos)
+    comprehensive_benchmark.py       Runner de carga elástica Z(t) y pruebas de stress
+    lambda_orchestrator.py           Orquestador elástico AWS Lambda (HTTP Management API)
+    analyzer.py                      Análisis estadístico de resultados
+    parser.py                        Parser de ficheros de benchmark
+    plotter.py                       Generador de gráficos
+init_system.py                       Resetea e inicializa el estado Redis
+DEPLOYMENT_GUIDE.md                  Guía de despliegue rápido one-command
+lambda_function.zip                  Paquete desplegable en AWS Lambda
+results/
+  reports/                           Informes de benchmark generados
+  plots/                             Gráficos PNG generados
 ```
 
-## Ticket Models
+---
 
-- `unnumbered`: at most 20,000 successful purchases
-- `numbered`: seats `1..20000`, each seat sold at most once
+## Modelos de entradas
 
-## Direct Architecture
+| Tipo          | Descripción                                          |
+|---------------|------------------------------------------------------|
+| `unnumbered`  | Máximo 100.000 compras exitosas (contador atómico)   |
+| `numbered`    | Asientos `1..20000`, cada asiento se vende una sola vez |
 
-For the delivery, the whole direct backend runs inside `worker-server`.
+---
 
-Start Redis on `worker-server`:
+## Arquitectura Directa (REST)
 
+Todo el backend directo se ejecuta en `worker-server`.
+
+**1. Arrancar Redis:**
 ```bash
-cd ~/Practica-SD
 redis-server
 ```
 
-Initialize state on `worker-server`:
-
+**2. Inicializar estado:**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 python init_system.py
 ```
 
-Start the three REST replicas on `worker-server` in separate shells:
-
+**3. Arrancar réplicas REST (3 shells separadas):**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 python src/direct/server.py --port 5001
 python src/direct/server.py --port 5002
 python src/direct/server.py --port 5003
 ```
 
-Start the load balancer on `worker-server`:
-
+**4. Arrancar el balanceador de carga:**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 python src/direct/load_balancer.py --host 0.0.0.0 --port 8000
 ```
 
-Run direct benchmark executions from a client VM:
-
+**5. Ejecutar benchmarks desde un cliente:**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 export REST_BENCHMARK_URL=http://10.0.1.118:8000
 python src/direct/client.py benchmarks/benchmark_unnumbered_20000.txt --url http://10.0.1.118:8000 --workers 4
-python src/direct/client.py benchmarks/benchmark_numbered_60000.txt --url http://10.0.1.118:8000 --workers 4
+python src/direct/client.py benchmarks/benchmark_numbered_60000.txt  --url http://10.0.1.118:8000 --workers 4
 ```
 
-This is the official direct architecture path for the project:
+**Resumen de la arquitectura:**
+- Punto de entrada único en `:8000`
+- Balanceo de carga server-side con implementación propia (round-robin)
+- Réplicas backend locales en `127.0.0.1:5001..5003`
 
-- single entry point on `:8000`
-- server-side load balancing
-- custom load balancer implementation, which is explicitly allowed by the assignment
-- backend replicas stay local to `worker-server`, so the load balancer talks to `127.0.0.1:5001..5003`
+---
 
+## Arquitectura Indirecta (RabbitMQ)
 
-## Indirect Architecture
-
-Start RabbitMQ on `rabbitmq-server`:
-
+**1. Arrancar RabbitMQ en `rabbitmq-server`:**
 ```bash
-cd ~/Practica-SD
 rabbitmq-server
 ```
 
-Set up the broker topology on `rabbitmq-server`:
-
+**2. Configurar la topología del broker:**
 ```bash
-cd ~/Practica-SD
 export RABBITMQ_HOST=10.0.1.106
 python src/indirect/broker_setup.py
 ```
 
-Start the indirect workers on `worker-server` in separate shells:
-
+**3. Arrancar workers en `worker-server`:**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 export RABBITMQ_HOST=10.0.1.106
 python src/indirect/worker.py --worker-id worker-1 --prefetch 100
@@ -126,23 +151,83 @@ python src/indirect/worker.py --worker-id worker-2 --prefetch 100
 python src/indirect/worker.py --worker-id worker-3 --prefetch 100
 ```
 
-Run indirect benchmark executions from a client VM:
-
+**4. Ejecutar benchmarks desde un cliente:**
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 export RABBITMQ_HOST=10.0.1.106
 python src/indirect/client.py benchmarks/benchmark_unnumbered_20000.txt --workers 4 --in-flight 100
-python src/indirect/client.py benchmarks/benchmark_numbered_60000.txt --workers 4 --in-flight 100
+python src/indirect/client.py benchmarks/benchmark_numbered_60000.txt  --workers 4 --in-flight 100
 ```
 
-## Expected Correctness
+---
 
-- `unnumbered`: `20000` successes, `0` failures
-- `numbered`: at most `20000` successes, no duplicated seats
+## Escalado Elástico Automático
 
-Quick Redis check:
+### Elastic Launcher (local, workers en proceso)
 
+Lanza y termina workers dinámicamente según la profundidad de la cola de RabbitMQ, aplicando las fórmulas del Requisito 5:
+
+```
+N = max(B·C / Tr ,  λ·T / C)
+```
+
+```bash
+export RABBITMQ_HOST=10.0.1.106
+python src/indirect/elastic_launcher.py --workers 3 --max-workers 10 --poll-interval 5
+```
+
+| Parámetro        | Descripción                          | Default |
+|------------------|--------------------------------------|---------|
+| `--workers`      | Workers iniciales                    | 3       |
+| `--max-workers`  | Límite superior de workers           | 10      |
+| `--poll-interval`| Intervalo de sondeo (segundos)       | 5       |
+
+---
+
+### Lambda Orchestrator (AWS Lambda + PostgreSQL)
+
+Orquestador elástico que invoca funciones AWS Lambda bajo demanda, monitorizando la cola vía la **HTTP Management API** de RabbitMQ.
+
+**Parámetros de configuración** (`src/common/config.py`):
+
+| Variable               | Valor por defecto                     | Descripción                         |
+|------------------------|---------------------------------------|-------------------------------------|
+| `TARGET_RESPONSE_TIME` | `2.0` s                               | Tiempo objetivo para vaciar backlog |
+| `WORKER_CAPACITY`      | `10.0` req/s                          | Capacidad de un worker Lambda       |
+| `MAX_LAMBDA_WORKERS`   | `40`                                  | Límite de seguridad (AWS Academy)   |
+| `LAMBDA_FUNCTION_NAME` | `Khoula-Sofia-TicketWorkerLambda`     | Nombre de la función Lambda         |
+| `AWS_REGION`           | `us-east-1`                           | Región AWS                          |
+
+**Arrancar el orquestador:**
+```bash
+export RABBITMQ_HOST=10.0.1.106
+python src/benchmarks/lambda_orchestrator.py
+```
+
+**Worker Lambda (`src/indirect/worker_lambda.py`):**
+- Handler stateless invocado en modo `Event` (asíncrono)
+- Usa `PostgresBackend` para garantizar **ACID**, **idempotencia** (`SELECT ... WHERE request_id`) y **control de concurrencia** (`SELECT ... FOR UPDATE`)
+- Aplica `time.sleep(0.100)` simulando latencia de pasarela de pago (Requisito 4)
+
+**Despliegue del paquete Lambda:**
+```bash
+# El paquete ya está preparado en lambda_function.zip
+aws lambda update-function-code \
+  --function-name Khoula-Sofia-TicketWorkerLambda \
+  --zip-file fileb://lambda_function.zip \
+  --region us-east-1
+```
+
+---
+
+## Correctitud esperada
+
+| Tipo        | Éxitos esperados | Restricciones                      |
+|-------------|------------------|------------------------------------|
+| `unnumbered`| 20.000 (o 100.000)| 0 duplicados                      |
+| `numbered`  | ≤ 20.000         | Sin asientos duplicados            |
+
+**Verificación rápida con Redis:**
 ```bash
 python - <<'PY'
 from src.common.redis_backend import RedisBackend
@@ -153,99 +238,119 @@ print("duplicates?:", len(sold) != len(set(sold)))
 PY
 ```
 
+---
+
 ## Benchmarking
 
-With `src/benchmarks/runner.py` removed, the benchmark workflow is:
+### Escalado de backends (plots comparativos)
 
-- use `src/direct/client.py` and `src/indirect/client.py` for one-off executions
-- use `src/benchmarks/backend_scaling_runner.py` to accumulate AWS data points and regenerate the plots
-
-Record REST backend-scaling points from a client VM. Repeat after changing the number of active REST replicas on `worker-server`:
+Registra puntos de escalado REST desde un cliente VM. Repite cambiando el número de réplicas activas:
 
 ```bash
-cd ~/Practica-SD
 export REDIS_HOST=10.0.1.118
 export RABBITMQ_HOST=10.0.1.106
 export REST_BENCHMARK_URL=http://10.0.1.118:8000
-python src/benchmarks/backend_scaling_runner.py --architecture rest --ticket-type both --backend-count 1 --client-workers 4 --label aws_backend
-python src/benchmarks/backend_scaling_runner.py --architecture rest --ticket-type both --backend-count 2 --client-workers 4 --label aws_backend
-python src/benchmarks/backend_scaling_runner.py --architecture rest --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
-```
-
-Record RabbitMQ backend-scaling points from a client VM. Repeat after changing the number of active workers on `worker-server`:
-
-```bash
-cd ~/Practica-SD
-export REDIS_HOST=10.0.1.118
-export RABBITMQ_HOST=10.0.1.106
-export REST_BENCHMARK_URL=http://10.0.1.118:8000
+python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket-type both --backend-count 1 --client-workers 4 --label aws_backend
+python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket-type both --backend-count 2 --client-workers 4 --label aws_backend
+python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
 python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 1 --client-workers 4 --label aws_backend
 python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 2 --client-workers 4 --label aws_backend
-python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
+python src/benchmarks/backend_scaling_Runner.py --architecture rabbitmq --ticket-type both --backend-count 3 --client-workers 4 --label aws_backend
 ```
 
-Using the same `--label` for both architectures appends everything to the same series and regenerates the comparison plots.
+Usar el mismo `--label` para ambas arquitecturas añade datos a la misma serie y regenera los plots comparativos.
 
-To generate the plots correctly:
+### Benchmark de carga elástica Z(t) y stress
 
-- run the benchmark commands from `client.1` or `client.2`
-- start Redis on `worker-server` first
-- start RabbitMQ and `src/indirect/broker_setup.py` on `rabbitmq-server`
-- for `rest`, start `5001`, `5002`, `5003` and `src/direct/load_balancer.py --port 8000` on `worker-server`
-- for `rabbitmq`, start the `src/indirect/worker.py` processes on `worker-server`
-- update `--backend-count` so it matches the number of active REST replicas or RabbitMQ workers for that run
-- keep the services running for the whole benchmark execution
-- check the generated files in `results/reports/` and `results/plots/`
-
-Results are saved under:
-
-- `results/reports/`
-- `results/plots/`
-
-## AWS Delivery Configuration
-
-Current AWS topology used for the delivery:
-
-- `worker-server`: private `10.0.1.118`, public `52.91.229.23`
-- `rabbitmq-server`: private `10.0.1.106`, public `34.201.110.76`
-- benchmarks run from the client instances inside the same VPC
-
-The repository defaults in `src/common/config.py` are aligned with that setup:
-
-- `REDIS_HOST=10.0.1.118`
-- `RABBITMQ_HOST=10.0.1.106`
-- `REST_BENCHMARK_URL=http://10.0.1.118:8000`
-- `REST_BACKEND_URLS` stays local (`127.0.0.1:5001..5003`) because the direct REST servers and load balancer run on the same `worker-server`
-
-If AWS rotates the IPs, update `src/common/config.py` or override them with environment variables before launching the processes.
-
-## Additional Requirements
-
-Dynamic scaling can be demonstrated without changing the benchmark files:
-
-- `direct`: on `worker-server`, start with one or two REST servers behind `src/direct/load_balancer.py`, then add another `server.py` process during the run
-- `rabbitmq`: on `worker-server`, start the benchmark with one worker, then launch additional `src/indirect/worker.py` processes while the client is still running
-
-Hotspot contention can be tested with the provided benchmark file `benchmarks/benchmark_numbered_hotspot_25997.txt` and a separate label:
+Implementa el patrón de carga variable del Requisito 6 (baja carga → rampa → pico → sostenido → enfriamiento):
 
 ```bash
-cd ~/Practica-SD
+# Test elástico Z(t)
+python src/benchmarks/comprehensive_benchmark.py \
+  --url http://10.0.1.118:8000 \
+  --architecture rest \
+  --ticket-type unnumbered \
+  --test-type elastic \
+  --base-rate 10 \
+  --duration 300 \
+  --output results/elastic_results.json
+
+# Test de stress (Requisito 7)
+python src/benchmarks/comprehensive_benchmark.py \
+  --test-type stress \
+  --base-rate 10 \
+  --max-rate 100 \
+  --output results/stress_results.json
+```
+
+### Benchmark de hotspot
+
+```bash
 export REDIS_HOST=10.0.1.118
 export RABBITMQ_HOST=10.0.1.106
 export REST_BENCHMARK_URL=http://10.0.1.118:8000
-python src/benchmarks/backend_scaling_runner.py --architecture rest --ticket-type numbered --backend-count 3 --client-workers 4 --numbered-benchmark benchmarks/benchmark_numbered_hotspot_25997.txt --label aws_hotspot_backend
+python src/benchmarks/backend_scaling_runner.py --architecture rest     --ticket-type numbered --backend-count 3 --client-workers 4 --numbered-benchmark benchmarks/benchmark_numbered_hotspot_25997.txt --label aws_hotspot_backend
 python src/benchmarks/backend_scaling_runner.py --architecture rabbitmq --ticket-type numbered --backend-count 3 --client-workers 4 --numbered-benchmark benchmarks/benchmark_numbered_hotspot_25997.txt --label aws_hotspot_backend
 ```
 
-This produces labeled report and plot files such as:
-
+Genera ficheros como:
 - `results/reports/benchmark_summary_hotspot_*.txt`
 - `results/plots/rest_numbered_scalability_hotspot.png`
 - `results/plots/comparison_numbered_hotspot.png`
 
-## Notes
+---
 
-- Use AWS Academy / lab VMs for the final evaluation runs.
-- The direct architecture uses a built-in Python load balancer on port `8000` as the official single entry point.
-- The indirect architecture supports tuning with `--workers`, `--in-flight`, and worker `--prefetch`.
-- The `scripts/` folder only contains Linux/AWS launch helpers.
+## Configuración AWS
+
+Los valores por defecto en `src/common/config.py` están alineados con la topología del laboratorio:
+
+| Variable               | Valor por defecto       |
+|------------------------|-------------------------|
+| `REDIS_HOST`           | `10.0.1.118`            |
+| `RABBITMQ_HOST`        | `10.0.1.106`            |
+| `POSTGRES_HOST`        | `172.31.46.203`         |
+| `REST_BENCHMARK_URL`   | `http://10.0.1.118:8000`|
+| `REST_BACKEND_URLS`    | `127.0.0.1:5001..5003`  |
+
+Si AWS rota las IPs, actualiza `src/common/config.py` o sobreescribe con variables de entorno antes de lanzar los procesos.
+
+---
+
+## Escalado dinámico en tiempo real
+
+### Directa (REST)
+En `worker-server`, arranca con uno o dos servidores REST detrás del load balancer y añade otro proceso `server.py` durante la ejecución:
+```bash
+python src/direct/server.py --port 5004  # añadido en caliente
+```
+
+### Indirecta (RabbitMQ clásico)
+Lanza el benchmark con un worker y añade más mientras el cliente sigue corriendo:
+```bash
+python src/indirect/worker.py --worker-id worker-4 --prefetch 100
+```
+
+### Indirecta (Lambda elástico)
+El `lambda_orchestrator.py` gestiona el escalado automáticamente monitorizando la HTTP Management API de RabbitMQ cada 2 segundos.
+
+---
+
+## Resultados
+
+Los resultados se guardan bajo:
+
+```
+results/
+  reports/    → Informes de texto con métricas por benchmark
+  plots/      → Gráficos PNG de throughput, latencia y escalabilidad
+```
+
+---
+
+## Notas
+
+- Usa AWS Academy / lab VMs para las ejecuciones de evaluación final.
+- La arquitectura directa usa el load balancer Python en `:8000` como único punto de entrada oficial.
+- La arquitectura indirecta admite ajuste con `--workers`, `--in-flight` y `--prefetch`.
+- La carpeta `scripts/` solo contiene helpers de arranque para Linux/AWS.
+- El `lambda_function.zip` contiene el paquete `worker_lambda.py` + `postgres_backend.py` + `psycopg2` listo para desplegarse en AWS Lambda.
