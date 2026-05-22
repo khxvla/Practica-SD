@@ -1,19 +1,19 @@
-output "data_node_private_ip" {
-  description = "IP privada del nodo de Datos (RabbitMQ, Postgres, Redis). ¡Copia este valor en config.py!"
-  value       = aws_instance.data_node.private_ip
+output "state_node_private_ip" {
+  description = "Private IP for RabbitMQ and PostgreSQL"
+  value       = aws_instance.state_node.private_ip
 }
 
-output "data_node_public_ip" {
-  description = "IP pública del nodo de Datos (para acceso por SSH)"
-  value       = aws_instance.data_node.public_ip
+output "state_node_public_ip" {
+  description = "Public IP for SSH administration"
+  value       = aws_instance.state_node.public_ip
 }
 
-output "worker_node_private_ip" {
-  description = "IP privada del nodo Worker"
-  value       = aws_instance.worker_node.private_ip
+output "lambda_function_name" {
+  description = "Stateless ticket worker Lambda"
+  value       = aws_lambda_function.ticket_worker.function_name
 }
 
-output "worker_node_public_ip" {
-  description = "IP pública del nodo Worker (para acceso por SSH)"
-  value       = aws_instance.worker_node.public_ip
+output "rabbitmq_management_url" {
+  description = "RabbitMQ Management UI from inside the VPC or SSH tunnel"
+  value       = "http://${aws_instance.state_node.private_ip}:15672"
 }
