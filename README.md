@@ -201,7 +201,7 @@ Orquestador elástico que invoca funciones AWS Lambda bajo demanda, monitorizand
 |------------------------|---------------------------------------|-------------------------------------|
 | `TARGET_RESPONSE_TIME` | `2.0` s                               | Tiempo objetivo para vaciar backlog |
 | `WORKER_CAPACITY`      | `10.0` req/s                          | Capacidad de un worker Lambda       |
-| `MAX_LAMBDA_WORKERS`   | `40`                                  | Límite de seguridad (AWS Academy)   |
+| `MAX_LAMBDA_WORKERS`   | `10`                                  | Límite de seguridad (AWS Academy)   |
 | `LAMBDA_FUNCTION_NAME` | `Khoula-Sofia-TicketWorkerLambda`     | Nombre de la función Lambda         |
 | `AWS_REGION`           | `us-east-1`                           | Región AWS                          |
 

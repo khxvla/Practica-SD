@@ -40,7 +40,7 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password_segura_sd")
 # ==============================================================================
 TARGET_RESPONSE_TIME = 2.0  # Tr: Tiempo objetivo máximo para vaciar el backlog (segundos)
 WORKER_CAPACITY = 10.0      # C: Capacidad de un worker (1 segundo / 0.100s de delay = 10 req/s)
-MAX_LAMBDA_WORKERS = 40     # Límite superior de seguridad para créditos en AWS Academy
+MAX_LAMBDA_WORKERS = 10     # Límite superior de seguridad para créditos en AWS Academy
 
 # AWS Lambda Serverless configuration
 LAMBDA_FUNCTION_NAME = "Khoula-Sofia-TicketWorkerLambda"

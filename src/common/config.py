@@ -58,7 +58,7 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password_segura_sd")
 # ==============================================================================
 TARGET_RESPONSE_TIME = 2.0   # Tr: Tiempo objetivo máximo para vaciar el backlog (s)
 WORKER_CAPACITY      = 10.0  # C: Capacidad de un worker (1 / 0.100s delay = 10 req/s)
-MAX_LAMBDA_WORKERS   = 40    # Límite superior de seguridad para créditos en AWS Academy
+MAX_LAMBDA_WORKERS   = 10    # Límite superior de seguridad para créditos en AWS Academy
 
 # ==============================================================================
 # AWS LAMBDA SERVERLESS CONFIGURATION
@@ -69,4 +69,4 @@ AWS_REGION           = "us-east-1"
 # ==============================================================================
 # LOGGING
 # ==============================================================================
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
